@@ -31,8 +31,8 @@ import argparse
 
 application = 'kettle'
 datadir = '/home/vyokky/aaai/' + application
-save_path = './cnn_'+appliance_name+'_s2s'
-batchsize = 100
+save_path = './cnn_'+application+'_s2s'
+batchsize = 5000
 epoch = 100
 
 saver = 1
@@ -214,6 +214,12 @@ network = tl.layers.Conv2dLayer(network,
                                 strides=[1, 1, 1, 1],
                                 padding='SAME',
                                 name = 'cnn5')
+network = tl.layers.Conv2dLayer(network,
+                                act = tf.nn.relu,
+                                shape = [5, 1, 50, 60],
+                                strides=[1, 1, 1, 1],
+                                padding='SAME',
+                                name = 'cnn6')
 network = tl.layers.FlattenLayer(network,
                                  name='flatten')
 network = tl.layers.DenseLayer(network,
