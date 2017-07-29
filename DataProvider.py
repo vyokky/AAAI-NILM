@@ -13,6 +13,7 @@ class DoubleSourceSlider(object):
 
         inputs, targets = inputs.flatten(), targets.flatten()
         assert inputs.size == targets.size
+
         max_batchsize = inputs.size - 2 * self.offset
         if self.batchsize < 0:
             self.batchsize = max_batchsize
@@ -29,7 +30,7 @@ class DoubleSourceSlider(object):
             else:
                 yield np.array([inputs[idx:idx + 2 * self.offset + 1] for idx in excerpt]), \
                       targets[excerpt + self.offset].reshape(-1, 1)
-                     
+
     def generate_test_data(self, inputs, targets, targets_gt, offset, flatten=True):
 
             shuffle = False
@@ -54,6 +55,88 @@ class DoubleSourceSlider(object):
                     yield np.array([inputs[idx:idx + 2 * offset + 1] for idx in excerpt]), \
                           targets[excerpt + offset].reshape(-1, 1), \
                             targets_gt[excerpt + offset].reshape(-1, 1)
+
+
+class DoubleSourceSlider(object):
+    def __init__(self, batchsize, shuffle, offset):
+
+        self.batchsize = batchsize
+        self.shuffle = shuffle
+        self.offset = offset
+
+    def feed(self, inputs, targets, flatten=True):
+
+        inputs, targets = inputs.flatten(), targets.flatten()
+        assert inputs.size == targets.size
+        max_batchsize = inputs.size - 2 * self.offset
+        if self.batchsize < 0:
+            self.batchsize = max_batchsize
+
+        indices = np.arange(max_batchsize)
+        if self.shuffle:
+            np.random.shuffle(indices)
+
+        for start_idx in range(0, max_batchsize, self.batchsize):
+            excerpt = indices[start_idx:start_idx + self.batchsize]
+            if flatten:
+                yield np.array([inputs[idx:idx + 2 * self.offset + 1] for idx in excerpt]), \
+                      targets[excerpt + self.offset]
+            else:
+                yield np.array([inputs[idx:idx + 2 * self.offset + 1] for idx in excerpt]), \
+                      targets[excerpt + self.offset].reshape(-1, 1)
+
+
+class S2S_Slider(object):
+
+    def __init__(self, batchsize, shuffle, length):
+
+        self.batchsize = batchsize
+        self.shuffle = shuffle
+        self.length = length
+
+    def feed(self, inputs, targets, flatten=True):
+
+        inputs, targets = inputs.flatten(), targets.flatten()
+        assert inputs.size == targets.size
+
+        max_batchsize = inputs.size - self.length
+        if self.batchsize < 0:
+            self.batchsize = max_batchsize
+
+        indices = np.arange(max_batchsize)
+        if self.shuffle:
+            np.random.shuffle(indices)
+
+        for start_idx in range(0, max_batchsize, self.batchsize):
+            excerpt = indices[start_idx:start_idx + self.batchsize]
+            
+            yield np.array([inputs[idx:idx + self.length] for idx in excerpt]), \
+                  np.array([targets[idx:idx + self.length] for idx in excerpt])
+
+    # def generate_test_data(self, inputs, targets, targets_gt, offset, flatten=True):
+    #
+    #     shuffle = False
+    #     inputs, targets = inputs.flatten(), targets.flatten()
+    #     assert inputs.size == targets.size
+    #     max_batchsize = inputs.size - 2 * offset
+    #     batchsize = max_batchsize
+    #     # if self.batchsize < 0:
+    #     #    self.batchsize = max_batchsize
+    #
+    #     indices = np.arange(max_batchsize)
+    #     if shuffle:
+    #         np.random.shuffle(indices)
+    #
+    #     for start_idx in range(0, max_batchsize, batchsize):
+    #         excerpt = indices[start_idx:start_idx + batchsize]
+    #         if flatten:
+    #             yield np.array([inputs[idx:idx + 2 * offset + 1] for idx in excerpt]), \
+    #                   targets[excerpt + offset], \
+    #                   targets_gt[excerpt + offset]
+    #         else:
+    #             yield np.array([inputs[idx:idx + 2 * offset + 1] for idx in excerpt]), \
+    #                   targets[excerpt + offset].reshape(-1, 1), \
+    #                   targets_gt[excerpt + offset].reshape(-1, 1)
 
 
 class MultiApp_Slider(object):
@@ -135,6 +218,7 @@ class DoubleSourceProvider(object):
             else:
                 excerpt = slice(start_idx, start_idx + self.batchsize)
             yield inputs[excerpt], targets[excerpt]
+
 
 class Transformer(object):
     
