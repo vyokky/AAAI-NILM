@@ -25,12 +25,23 @@ import tensorlayer as tl
 import numpy as np
 import DataProvider
 import argparse
+import sys
 
 # only one GPU is visible to current task.
 # CUDA_VISIBLE_DEVICES=1 
 
-application = 'kettle'
-datadir = '/home/vyokky/aaai/' + application
+parser = argparse.ArgumentParser(description='Train a neural network\
+                                 for energy disaggregation - \
+                                 network input = mains window; \
+                                 network target = the states of \
+                                 the target appliance.')
+parser.add_argument('appliance_name', type=str, 
+                help='Define appliance to train.')
+args = parser.parse_args(sys.argv[1:])
+
+
+application = args.appliance_name
+datadir = './' + application
 save_path = './cnn_'+application+'_s2s'
 batchsize = 5000
 epoch = 100
@@ -227,7 +238,7 @@ sess.run(tf.global_variables_initializer())
 # print 'set sucessful'
 
 # save_path = './cnn'+appliance_name+'_pointnet_model'
-'
+
 
 nf.customfit(sess = sess,
              network = network,
