@@ -215,6 +215,12 @@ network = tl.layers.DenseLayer(network,
 
 
 y = network.outputs
+cost = tl.cost.mean_squared_error(y, y_)
+train_params = network.all_params
+train_op = tf.train.AdamOptimizer(learning_rate=0.001, beta1=0.9, beta2=0.999,
+                                  epsilon=1e-08, use_locking=False).minimize(cost, var_list=train_params)
+
+# initialize all variables
 sess.run(tf.global_variables_initializer())
 # params = tl.files.load_npz(path='', name='cnn_lstm_model.npz')
 # tl.files.assign_params(sess, params, network)
